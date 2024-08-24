@@ -1,5 +1,3 @@
-# 24.8月底将更新最最关键的教程……
-
 # Cloudflare-workers/pages代理脚本
 ### 本项目仅支持本地化部署，不依赖订阅器、节点转换等第三方外链引用，无需担心节点订阅被盗查
 --------------------------------
@@ -118,7 +116,16 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 注意：多个CF节点在客户端使用负载均衡或者自动选择时，建议所有应用的节点都为同一个国家地区，以避免不同国家之间的IP乱跳现象
 
 ---------------------------------
-## 客户端推荐
+## 六：自制proxyip、80系/443系端口反代IP
+
+[x-ui-yg脚本](https://github.com/yonggekkk/x-ui-yg)
+
+[sing-box-yg脚本](https://github.com/yonggekkk/sing-box_hysteria2_tuic_argo_reality)
+
+相关操作请看[视频教程](https://youtu.be/QOnMVULADko)
+
+---------------------------------
+## 七：客户端推荐
 
 #### 启用分片(Fragment)功能的好处：无视域名被墙TLS阻断，从而让workers等被墙的域名支持TLS节点
 #### 提示：未被墙TLS阻断的自定义域名或pages域名无需开启分片就可使用TLS节点
@@ -138,6 +145,7 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 注意：Shadowrocket(小火箭)、v2box、v2rayn、v2rayng客户端对trojan+ws有强制开启TLS问题，造成trojan+ws不通。且clash订阅没有trojan+ws节点。特此说明
 
 ---------------------------------
+
 ### 相关说明及注意点请查看[甬哥博客](https://ygkkk.blogspot.com/2023/07/cfworkers-vless.html)
 
 ### 视频教程：
@@ -152,7 +160,9 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 
 强烈推荐：[CF vless/trojan永久免费节点教程（五）：不用自定义域名？不用频繁优选IP？不用订阅器？总结CF节点与域名的结构关系图](https://youtu.be/8s-ELRuFaeE)
 
-最新推荐：[CF vless/trojan永久免费节点教程（六）：节点不能用，问题出在哪？多平台免费客户端设置指南及避坑说明](https://youtu.be/8E0l0nQWLxs)
+强烈推荐：[CF vless/trojan永久免费节点教程（六）：节点不能用，问题出在哪？多平台免费客户端设置指南及避坑说明](https://youtu.be/8E0l0nQWLxs)
+
+最新推荐：[CF vless/trojan永久免费节点最终教程（七）：全网独家演示真正的 "固定IP"，twitch.tv、chatgpt客户端不报错的秘密；一键reality协议自制反代IP与ProxyIP](https://youtu.be/QOnMVULADko)
 
 [直播精选回顾：CF workers vless免费节点四大特点，节点被断流阻断问题](https://youtu.be/9OHGpWlfdJ0)
 

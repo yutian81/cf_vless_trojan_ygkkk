@@ -1,5 +1,5 @@
 # Cloudflare-workers/pages代理脚本
-### 本项目仅支持本地化部署，不依赖订阅器、节点转换等第三方外链引用，无需担心节点订阅被盗查
+### 本项目仅支持本地化部署，不使用订阅器、节点转换等第三方外链引用，无需担心节点订阅被外链作者查看
 --------------------------------
 ## 脚本特色：
 ### 懒人小白专用！默认节点都为CF官方IP，无需频繁更新订阅获取客户端优选IP
@@ -116,11 +116,12 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 注意：多个CF节点在客户端使用负载均衡或者自动选择时，建议所有应用的节点都为同一个国家地区，以避免不同国家之间的IP乱跳现象
 
 ---------------------------------
-## 六：无需socks5！自制proxyip、80系/443系端口反代IP
+## 六：无需socks5！小白一键自制proxyip、80系/443系的任意端口反代IP
 
-#### 推荐使用性能垃圾、离中国近、便宜、流量多的纯IPV6的vps进行搭建！切记：避免使用IPV4！因为IPV4大概率被大佬偷扫反代IP，成为他人公益或收费IP库！
+#### 推荐使用 性能垃圾、离中国近、便宜、流量多的纯IPV6的vps进行搭建！
+#### 切记：近可能避免使用IPV4！因为IPV4大概率被大佬们偷扫反代IP，成为他们的公益或收费反代IP库！
 
-脚本推荐：
+搭建proxyip与反代ip的脚本推荐：
 
 [x-ui-yg脚本](https://github.com/yonggekkk/x-ui-yg)
 
@@ -166,7 +167,7 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 
 强烈推荐：[CF vless/trojan永久免费节点教程（六）：节点不能用，问题出在哪？多平台免费客户端设置指南及避坑说明](https://youtu.be/8E0l0nQWLxs)
 
-最新推荐：[CF vless/trojan永久免费节点最终教程（七）：全网独家演示真正的 "固定IP"，twitch.tv、chatgpt客户端不报错的秘密；一键reality协议自制反代IP与ProxyIP](https://youtu.be/QOnMVULADko)
+最新推荐：[CF vless/trojan永久免费节点最终教程（七）：全网独家演示真正的"固定IP"，解决twitch、chatgpt客户端报错问题；一键自制反代IP与ProxyIP；揭秘你被他人偷扫IP的风险](https://youtu.be/QOnMVULADko)
 
 [直播精选回顾：CF workers vless免费节点四大特点，节点被断流阻断问题](https://youtu.be/9OHGpWlfdJ0)
 

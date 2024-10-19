@@ -6,7 +6,7 @@ import { connect } from "cloudflare:sockets";
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 let userID = "77a571fb-4fd2-4b37-8596-1b7d9728bb5c";
 
-const proxyIPs = ["proxy.xxxxxxxx.tk"]; //ts.hpc.tw edgetunnel.anycast.eu.org bestproxy.onecf.eu.org cdn-all.xn--b6gac.eu.org cdn.xn--b6gac.eu.org proxy.xxxxxxxx.tk
+const proxyIPs = ["ts.hpc.tw"]; //ts.hpc.tw edgetunnel.anycast.eu.org bestproxy.onecf.eu.org cdn-all.xn--b6gac.eu.org cdn.xn--b6gac.eu.org proxy.xxxxxxxx.tk
 const cn_hostnames = [''];
 let CDNIP = 'www.visa.com.sg'
 // http_ip
@@ -44,6 +44,7 @@ let PT12 = '2087'
 let PT13 = '2096'
 
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+let proxyPort = proxyIP.includes(':') ? proxyIP.split(':')[1] : '443';
 
 if (!isValidUUID(userID)) {
   throw new Error("uuid is not valid");
@@ -58,8 +59,33 @@ export default {
    */
   async fetch(request, env, ctx) {
     try {
+      const { proxyip } = env;
       userID = env.uuid || userID;
-      proxyIP = env.proxyip || proxyIP;
+			if (proxyip) {
+				if (proxyip.includes(']:')) {
+					let lastColonIndex = proxyip.lastIndexOf(':');
+					proxyPort = proxyip.slice(lastColonIndex + 1);
+					proxyIP = proxyip.slice(0, lastColonIndex);
+					
+				} else if (!proxyip.includes(']:') && !proxyip.includes(']')) {
+					[proxyIP, proxyPort = '443'] = proxyip.split(':');
+				} else {
+					proxyPort = '443';
+					proxyIP = proxyip;
+				}				
+			} else {
+				if (proxyIP.includes(']:')) {
+					let lastColonIndex = proxyIP.lastIndexOf(':');
+					proxyPort = proxyIP.slice(lastColonIndex + 1);
+					proxyIP = proxyIP.slice(0, lastColonIndex);	
+				} else if (!proxyIP.includes(']:') && !proxyIP.includes(']')) {
+					[proxyIP, proxyPort = '443'] = proxyIP.split(':');
+				} else {
+					proxyPort = '443';
+				}	
+			}
+			console.log('ProxyIP:', proxyIP);
+			console.log('ProxyPort:', proxyPort);
       CDNIP = env.cdnip || CDNIP;
 	  IP1 = env.ip1 || IP1;
 	  IP2 = env.ip2 || IP2;
@@ -198,8 +224,16 @@ export default {
 				if(isValidIP(tmp_ip))
 				{
 					proxyIP=tmp_ip;
-				}
-				
+					if (proxyIP.includes(']:')) {
+						let lastColonIndex = proxyIP.lastIndexOf(':');
+						proxyPort = proxyIP.slice(lastColonIndex + 1);
+						proxyIP = proxyIP.slice(0, lastColonIndex);	
+					} else if (!proxyIP.includes(']:') && !proxyIP.includes(']')) {
+						[proxyIP, proxyPort = '443'] = proxyIP.split(':');
+					} else {
+						proxyPort = '443';
+					}
+				}	
 			}
         return await vlessOverWSHandler(request);
 		}
@@ -384,7 +418,7 @@ async function handleTCPOutBound(
 
   // if the cf connect tcp socket have no incoming data, we retry to redirect ip
   async function retry() {
-    const tcpSocket = await connectAndWrite(proxyIP || addressRemote, portRemote);
+    const tcpSocket = await connectAndWrite(proxyIP || addressRemote, proxyPort || portRemote);
     // no matter retry success or not, close websocket
     tcpSocket.closed
       .catch((error) => {
@@ -851,7 +885,7 @@ ${displayHtml}
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1>Cloudflare-workers/pages-vless代理脚本 V24.7.25</h1>
+            <h1>Cloudflare-workers/pages-vless代理脚本 V24.10.18</h1>
 	    <hr>
             <p>${noteshow}</p>
             <hr>
@@ -983,7 +1017,7 @@ ${displayHtml}
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1>Cloudflare-workers/pages-vless代理脚本 V24.7.25</h1>
+            <h1>Cloudflare-workers/pages-vless代理脚本 V24.10.18</h1>
 			<hr>
             <p>${noteshow}</p>
             <hr>

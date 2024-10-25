@@ -1,5 +1,7 @@
 # Cloudflare-workers/pages代理脚本
-### 本项目仅支持本地化部署，不使用订阅器、节点转换等第三方外链引用，无需担心节点订阅被外链作者查看
+### 本项目仅支持本地化部署
+### 不使用订阅器、节点转换等第三方外链引用
+### 无需担心节点订阅被外链作者查看
 --------------------------------
 ## 脚本特色：
 ### 懒人小白专用！默认节点都为CF官方IP，无需频繁更新订阅获取客户端优选IP
@@ -141,7 +143,7 @@ CDN优选域名V23.8.18(电脑win64)
 
 CF优选反代IP(电脑版)
 
-CF优选官方IP(无测速三地区电脑版)
+CF优选官方IP(无交互美、亚、欧三地区电脑版！推荐！！！)
 
 CF优选官方IP(电脑版)
 
@@ -226,6 +228,12 @@ curl -sSL https://gitlab.com/rwkgyg/CFwarp/raw/main/point/CFcdnym.sh -o CFcdnym.
 ### CF-优选官方IP+反代IP二合一脚本，苹果安卓手机平板专用：
 ```
 curl -sSL https://gitlab.com/rwkgyg/CFwarp/raw/main/point/cfip.sh -o cfip.sh && chmod +x cfip.sh && bash cfip.sh
+```
+
+-------------------------------------------------------------
+### CF-优选官方IP(默认美、亚、欧三地区)，苹果安卓手机平板专用：
+```
+curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/cf.sh -o cf.sh && chmod +x cf.sh && bash cf.sh
 ```
 
 -------------------------------------------------------------

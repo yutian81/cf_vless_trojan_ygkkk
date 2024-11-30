@@ -8,14 +8,19 @@
 #### Pages方式：支持vless+ws+tls、trojan+ws+tls代理节点
 #### CF Vless/Trojan的单节点支持path路径自定义三类proxyip（IPV4形式、IPV6形式、域名形式）
 #### 支持单节点链接、聚合通用节点订阅、sing-box节点订阅、clash节点订阅
+#### CF经常通过关键字报错1101，为长久稳定考虑，_worker.js代码已混淆加密，请使用_worker.js文件里的乱码进行部署，仅支持通过变量修改参数，不支持本地修改
+-------------------------------------------------------------
 
+### 交流平台：[甬哥博客地址](https://ygkkk.blogspot.com)、[甬哥YouTube频道](https://www.youtube.com/@ygkkk)、[甬哥TG电报群组](https://t.me/+jZHc6-A-1QQ5ZGVl)、[甬哥TG电报频道](https://t.me/+DkC9ZZUgEFQzMTZl)
 --------------------------------
-
-### CF针对关键字报错1101，_worker.js代码已混淆加密
 
 ### 新手用户请先查看入门教程：[CF vless/trojan永久免费节点(整合版)：无需自定义域名，快速上手搭建；全平台免费客户端设置说明；独家优选IP与Proxyip的意义说明；一键生成美国、香港、欧洲三区优选官方IP](https://youtu.be/WwAeLyEz6jY)
 
 ### 最新参数变量修改请参考视频教程：https://youtu.be/cVLxDKHTv6w?si=j3y-T8fMxdoBNIlS&t=40
+
+### 小白们注意：以电脑端V2rayN为例，唯一标准是右下角 "当前延迟：-1 ms" 时，才能说明选择的节点不可用
+
+---------------------------------------------
 
 ## 一：CF Vless节点可设置的变量内容
 
@@ -34,7 +39,7 @@
 
 | 变量作用 | 变量名称| 变量值要求| 变量默认值| 变量要求|
 | :--- | :--- | :--- | :--- | :--- |
-| 1、必要的密码 | pswd (小写字母) |任意字符号 |万人骑密码：trojan|建议|
+| 1、必要的密码 | pswd (小写字母) |建议字母数字 |万人骑密码：trojan|建议|
 | 2、能上CF类网站 | proxyip (小写字母) |443端口：ipv4地址、[ipv6地址]、域名。非443端口：IPV4地址:端口、[IPV6地址]:端口、域名:端口|proxyip域名：大佬公用域名|可选|
 | 3、订阅节点优选IP | ip1到ip13，共13个 |CF官方IP、CF反代IP、CF优选域名| CF官方不同地区的visa域名|可选|
 | 4、优选IP对应端口 | pt1到pt13，共13个 |CF13个标准端口、反代IP对应任意端口| CF13个标准端口|可选|
@@ -237,10 +242,6 @@ curl -sSL https://gitlab.com/rwkgyg/CFwarp/raw/main/point/CFcdnym.sh -o CFcdnym.
 ```
 curl -sSL https://gitlab.com/rwkgyg/CFwarp/raw/main/point/cfip.sh -o cfip.sh && chmod +x cfip.sh && bash cfip.sh
 ```
-
--------------------------------------------------------------
-
-### 交流平台：[甬哥博客地址](https://ygkkk.blogspot.com)、[甬哥YouTube频道](https://www.youtube.com/@ygkkk)、[甬哥TG电报群组](https://t.me/+jZHc6-A-1QQ5ZGVl)、[甬哥TG电报频道](https://t.me/+DkC9ZZUgEFQzMTZl)
 
 -------------------------------------------------------------
 ### 感谢你右上角的star🌟

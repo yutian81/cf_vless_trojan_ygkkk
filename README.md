@@ -18,8 +18,6 @@
 
 ### 最新参数变量修改请参考视频教程：https://youtu.be/cVLxDKHTv6w?si=j3y-T8fMxdoBNIlS&t=40
 
-### 小白们注意：以电脑端V2rayN为例，唯一标准是右下角 "当前延迟：-1 ms" 时，才能说明选择的节点不可用
-
 ---------------------------------------------
 
 ## 一：CF Vless节点可设置的变量内容
@@ -42,15 +40,18 @@
 | 3、订阅节点优选IP | ip1到ip13，共13个 |CF官方IP、CF反代IP、CF优选域名| CF官方不同地区的visa域名|可选|
 | 4、优选IP对应端口 | pt1到pt13，共13个 |CF13个标准端口、反代IP对应任意端口| CF13个标准端口|可选|
 
-#### 注：ip1到ip7，pt1到pt7，在订阅分享链接中，仅支持80系端口关TLS节点
+#### 特别注意：
 
-#### 注：ip8到ip13，pt8到pt13，在订阅分享链接中，仅支持443系端口开TLS节点
+1、重点：首次pages部署好后，其域名可能要等1分钟才能生效打开
 
-#### 注：pages部署好后，其域名要等1分钟才能生效打开
+2、重点：pages的变量更改好后，必须点击右上角创建部署选项，重新上传一次原始pages混淆文件来使新变量生效
+![photo_2024-12-02_15-17-19](https://github.com/user-attachments/assets/31a659ef-8e2c-46be-b806-d16ae7ccc69f)
 
-#### 注：workers的变量更改会自动刷新。pages的变量更改必须点击创建部署选项，重新上传一次原始pages文件来使新变量生效
+3、ip1到ip7，pt1到pt7，在订阅分享链接中，仅支持80系端口关TLS节点
 
-#### 注：单节点可随意DIY修改并无限克隆节点，具体见相关手搓节点的视频教程
+4、ip8到ip13，pt8到pt13，在订阅分享链接中，仅支持443系端口开TLS节点
+
+5、单节点可随意DIY修改并无限克隆节点，具体见相关[手搓节点的视频教程](https://youtu.be/WwAeLyEz6jY)
 
 ---------------------------------
 ## 三：自定义proxyip
@@ -80,8 +81,38 @@
 2、聚合订阅节点变量变更proxyip：影响所有未设置path路径proxyip的节点
 
 ---------------------------------
+## 四：无需socks5！小白利用reality协议一键自制proxyip、80系/443系的任意端口反代IP
 
-## 四：查看配置信息与分享链接
+### 1、Serv00专用：
+
+修改自Serv00|ct8老王sing-box安装脚本，支持一键三协议：vless-reality、hysteria2、tuic。
+
+主要增加reality协议默认支持 CF vless/trojan 节点的proxyip以及非标端口的优选反代IP功能，脚本默认输出结果
+```
+bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/serv00_proxyip.sh)
+```
+
+### 2、VPS专用：
+
+推荐使用 离中国近、便宜、流量多的纯IPV6的vps进行搭建。近可能避免使用IPV4，因为IPV4大概率被大佬们偷扫反代IP，成为他们的公益或收费反代IP库。如果非要用IPV4，请时常关注下自己VPS的流量，使用proxyip与客户端优选IP都会消耗VPS流量
+
+搭建proxyip与反代ip的脚本推荐：[x-ui-yg脚本](https://github.com/yonggekkk/x-ui-yg)、[sing-box-yg脚本](https://github.com/yonggekkk/sing-box-yg)
+
+相关操作请看[视频教程高阶1](https://youtu.be/QOnMVULADko)、[视频教程高阶2](https://youtu.be/CVZStM0t8BA)
+
+### 3、可现实以下四种情况(推荐在TLS节点环境下)：
+
+可选择现实1：仅用于客户端优选IP，即CF节点访问非CF网站的落地IP地区与VPS地区一致，访问CF网站落地IP地区根据proxyip决定
+
+可选择现实2：仅用于proxyip，即CF节点访问CF网站的落地IP地区与VPS地区一致，访问非CF网站落地IP地区根据客户端优选IP决定
+
+可选择现实3：同时用于客户端优选IP与proxyip，即CF节点访问CF网站的落地IP地区、访问非CF网站落地IP地区，两者都与VPS地区一致
+
+可选择现实4：通过在VPS安装WARP全局双栈V4+V6功能，即访问非CF网站的客户端优选IP的落地IP（104.28……/2a09:……）现实固定，或访问CF网站的proxyip的落地IP（104.28……/2a09:……）现实WARP解锁功能效果
+
+---------------------------------
+
+## 五：查看配置信息与分享链接
 
 CF Vless：在网页地址栏输入 https:// workers域名 或者 pages域名 或者 自定义域名 /自定义uuid
 
@@ -95,7 +126,7 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 
 ---------------------------------
 
-## 五：优选IP应用
+## 六：优选IP应用
 
 如果你没有天天最高速度或者选择国家的需求，使用默认的CF官方IP或者域名即可，不必更换
 
@@ -146,27 +177,7 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 注意：多个CF节点在客户端使用负载均衡或者自动选择时，建议所有应用的节点都为同一个国家地区，以避免不同国家之间的IP乱跳现象
 
 ---------------------------------
-## 六：无需socks5！小白利用reality协议一键自制proxyip、80系/443系的任意端口反代IP
 
-### 推荐使用 离中国近、便宜、流量多的纯IPV6的vps进行搭建。近可能避免使用IPV4，因为IPV4大概率被大佬们偷扫反代IP，成为他们的公益或收费反代IP库。如果非要用IPV4，请时常关注下自己VPS的流量，使用proxyip与客户端优选IP都会消耗VPS流量
-
-### 可现实以下四种情况：
-
-可选择现实1：仅用于客户端优选IP，即CF节点访问非CF网站的落地IP地区与VPS地区一致，访问CF网站落地IP地区根据proxyip决定
-
-可选择现实2：仅用于proxyip，即CF节点访问CF网站的落地IP地区与VPS地区一致，访问非CF网站落地IP地区根据客户端优选IP决定
-
-可选择现实3：同时用于客户端优选IP与proxyip，即CF节点访问CF网站的落地IP地区、访问非CF网站落地IP地区，两者都与VPS地区一致
-
-可选择现实4：通过在VPS安装WARP全局双栈V4+V6功能，即访问非CF网站的客户端优选IP的落地IP（104.28……/2a09:……）现实固定，或访问CF网站的proxyip的落地IP（104.28……/2a09:……）现实WARP解锁功能效果
-
-搭建proxyip与反代ip的脚本推荐：[x-ui-yg脚本](https://github.com/yonggekkk/x-ui-yg)、[sing-box-yg脚本](https://github.com/yonggekkk/sing-box-yg)
-
-相关操作请看[视频教程高阶1](https://youtu.be/QOnMVULADko)、[视频教程高阶2](https://youtu.be/CVZStM0t8BA)
-
-#### 关于serv00能否搭建reality形式的Proxyip与客户端地址反代IP问题：如果可以建reality协议就可以：把某serv00的reality脚本中这行```"server_name": "默认域名" ```与 这行```"server": "默认域名"```中的这两处默认域名，改为cf域名后进行部署，由于serv00不支持443端口，所以只能建非标准端口的Proxyip与客户端地址反代IP。说明：如果serv00 IP被墙，用作于Proxyip依旧有效，但用作于客户端地址反代IP将被墙失效
-
----------------------------------
 ## 七：客户端推荐
 
 #### 启用分片(Fragment)功能的好处：无视域名被墙TLS阻断，从而让workers等被墙的域名支持TLS节点

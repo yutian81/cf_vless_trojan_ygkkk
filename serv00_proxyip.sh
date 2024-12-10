@@ -108,12 +108,8 @@ install_singbox() {
 if [[ -e $WORKDIR/list.txt ]]; then
 yellow "已安装sing-box，请先选择2卸载，再执行安装" && exit
 fi
-echo -e "${yellow}本脚本同时三协议共存${purple}(vless-reality、vmess+ws/argo、hysteria2)${re}"
-echo -e "${yellow}开始运行前，请确保在面板${purple}已开放3个端口，两个tcp端口和一个udp端口${re}"
-echo -e "${yellow}面板${purple}Additional services中的Run your own applications${yellow}已开启为${purplw}Enabled${yellow}状态${re}"
-reading "\n确定继续安装吗？【y/n】: " choice
-  case "$choice" in
-    [Yy])
+yellow "请确保在Serv00网页设置中已开放3个端口：2个tcp端口、1个udp端口"
+sleep 2
         cd $WORKDIR
         #read_nz_variables
 	echo
@@ -134,10 +130,6 @@ reading "\n确定继续安装吗？【y/n】: " choice
         download_and_run_singbox
 	echo
         get_links
-      ;;
-    [Nn]) exit 0 ;;
-    *) red "无效的选择，请输入y或n" && menu ;;
-  esac
 }
 
 uninstall_singbox() {
@@ -162,24 +154,27 @@ reading "\n清理所有进程将退出ssh连接，确定继续清理吗？【y/n
   esac
 }
 
-
 # Generating argo Config
 argo_configure() {
-  if [[ -z $ARGO_AUTH || -z $ARGO_DOMAIN ]]; then
-      reading "选择 y 表示使用固定argo隧道(需要域名)；选择 n 表示使用argo临时隧道（无需域名）【y/n】: " argo_choice
-      [[ -z $argo_choice ]] && return
-      [[ "$argo_choice" != "y" && "$argo_choice" != "Y" && "$argo_choice" != "n" && "$argo_choice" != "N" ]] && { red "无效的选择，请输入y或n"; return; }
-      if [[ "$argo_choice" == "y" || "$argo_choice" == "Y" ]]; then
-          reading "请输入argo固定隧道域名: " ARGO_DOMAIN
-          green "你的argo固定隧道域名为: $ARGO_DOMAIN"
-          reading "请输入argo固定隧道密钥（Json或Token）: " ARGO_AUTH
-          green "你的argo固定隧道密钥为: $ARGO_AUTH"
-	  echo -e "${red}注意：${purple}使用token，需要在cloudflare后台设置隧道端口和面板开放的tcp端口一致${re}"
-      else
-          green "ARGO隧道变量未设置，将使用临时隧道"
-          return
-      fi
-  fi
+  while true; do
+    yellow "Argo临时隧道 (无需域名，推荐)"
+    yellow "Argo固定隧道 (需要域名，需要CF设置提取Token)"
+    reading "输入 g 表示使用Argo固定隧道 ；回车跳过 表示使用Argo临时隧道 【g/回车】: " argo_choice
+    if [[ "$argo_choice" != "g" && "$argo_choice" != "G" && -n "$argo_choice" ]]; then
+        red "无效的选择，请输入 g 或回车"
+        continue
+    fi
+    if [[ "$argo_choice" == "g" || "$argo_choice" == "G" ]]; then
+        reading "请输入argo固定隧道域名: " ARGO_DOMAIN
+        green "你的argo固定隧道域名为: $ARGO_DOMAIN"
+        reading "请输入argo固定隧道密钥（Json或Token）: " ARGO_AUTH
+        green "你的argo固定隧道密钥为: $ARGO_AUTH"
+        echo -e "${red}注意：${purple}使用token，需要在cloudflare后台设置隧道端口和vmess+ws的tcp端口一致${re}"
+    else
+        green "使用Argo临时隧道"
+    fi
+    break
+done
 
   if [[ $ARGO_AUTH =~ TunnelSecret ]]; then
     echo $ARGO_AUTH > tunnel.json
@@ -195,8 +190,6 @@ ingress:
       noTLSVerify: true
   - service: http_status:404
 EOF
-  else
-    green "ARGO_AUTH mismatch TunnelSecret,use token connect to tunnel"
   fi
 }
 
@@ -532,18 +525,30 @@ echo -e "\e[1;32mArgo域名:\e[1;35m${argodomain}\e[0m\n"
 ISP=$(curl -s --max-time 2 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
 get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
 NAME="$ISP-$(get_name)"
-yellow "注意：v2ray或其他软件的跳过证书验证需设置为true,否则hy2或tuic节点可能不通\n"
+rm -rf jh.txt
+vl_link="vless://$UUID@$IP:$vless_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reym&fp=chrome&pbk=$public_key&type=tcp&headerType=none#$NAME-reality"
+echo "$vl_link" >> jh.txt
+vmws_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws\", \"add\": \"$IP\", \"port\": \"$vmess_port\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\", \"sni\": \"\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)"
+echo "$vmws_link" >> jh.txt
+vmatls_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws-tls-argo\", \"add\": \"icook.hk\", \"port\": \"8443\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)"
+echo "$vmatls_link" >> jh.txt
+vma_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws-argo\", \"add\": \"icook.hk\", \"port\": \"8880\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\"}" | base64 -w0)"
+echo "$vma_link" >> jh.txt
+hy2_link="hysteria2://$UUID@$IP:$hy2_port?sni=www.bing.com&alpn=h3&insecure=1#$NAME-hy2"
+echo "$hy2_link" >> jh.txt
+url=$(cat jh.txt 2>/dev/null)
+baseurl=$(echo -e "$url" | base64 -w 0)
+yellow "注意：v2rayN或其他软件的跳过证书验证需设置为true，否则hy2或tuic节点可能不通\n"
 sleep 2
 cat > list.txt <<EOF
 
 =================================================================================================
 
 一、Vless-reality分享链接如下：
-vless://$UUID@$IP:$vless_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reym&fp=chrome&pbk=$public_key&type=tcp&headerType=none#$NAME-reality
+$vl_link
 
--------------------------------------------------------------------------------------------------
-如果之前输入的reality域名为CF域名，将激活以下功能：
-可在 https://github.com/yonggekkk/Cloudflare_vless_trojan 项目中创建CF vless/trojan 节点
+注意：如果之前输入的reality域名为CF域名，将激活以下功能：
+可应用在 https://github.com/yonggekkk/Cloudflare_vless_trojan 项目中创建CF vless/trojan 节点
 1、Proxyip(带端口)信息如下：
 方式一全局应用：设置变量名：proxyip    设置变量值：$IP:$vless_port  
 方式二单节点应用：path路径改为：/pyip=$IP:$vless_port
@@ -551,34 +556,46 @@ CF节点的TLS可开可关
 用于CF节点落地到CF网站的地区为$IP所在地区
 
 2、非标端口反代IP信息如下：
-客户端优选IP地址为：$IP，端口：$vless_port，CF节点的TLS必须开启
+客户端优选IP地址为：$IP，端口：$vless_port
+CF节点的TLS必须开启
 用于CF节点落地到非CF网站的地区为$IP所在地区
 
 注：如果serv00的IP被墙，proxyip依旧有效，但用于客户端的优选IP将不可用！
 注：必定有大佬会扫Serv00的反代IP作为其共享IP库或者出售，请慎重将reality域名设置为CF域名
 -------------------------------------------------------------------------------------------------
 
+
 二、Vmess-ws分享链接三形态如下：
 1、Vmess-ws分享链接如下：
-vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess\", \"add\": \"$IP\", \"port\": \"$vmess_port\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\", \"sni\": \"\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)
+$vmws_link
 
 2、Vmess-ws-tls_Argo分享链接如下 (客户端地址可自行修改优选IP，6个443系端口随便更换)：
-vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws-tls-argo\", \"add\": \"icook.hk\", \"port\": \"8443\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)
+$vmatls_link
 
 3、Vmess-ws_Argo分享链接如下 (客户端地址可自行修改优选IP，7个80系端口随便更换)：
-vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws-argo\", \"add\": \"icook.hk\", \"port\": \"8880\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"none\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\"}" | base64 -w0)
+$vma_link
+-------------------------------------------------------------------------------------------------
+
 
 三、HY2分享链接如下：
-hysteria2://$UUID@$IP:$hy2_port?sni=www.bing.com&alpn=h3&insecure=1#$NAME-hy2
+$hy2_link
+-------------------------------------------------------------------------------------------------
 
-四、查看sing-box与clash-meta配置文件，请进入主菜单选择4
+
+四、以上五个节点的聚合通用分享链接如下：
+$baseurl
+-------------------------------------------------------------------------------------------------
+
+
+五、查看sing-box与clash-meta配置文件，请进入主菜单选择4
+-------------------------------------------------------------------------------------------------
 
 =================================================================================================
 
 EOF
 cat list.txt
 
-cat > sing_box.txt <<EOF
+cat > sing_box.json <<EOF
 {
   "log": {
     "disabled": false,
@@ -713,7 +730,7 @@ cat > sing_box.txt <<EOF
             "tag": "vmess-$NAME",
             "tls": {
                 "enabled": false,
-                "server_name": "",
+                "server_name": "www.bing.com",
                 "insecure": false,
                 "utls": {
                     "enabled": true,
@@ -724,7 +741,7 @@ cat > sing_box.txt <<EOF
             "transport": {
                 "headers": {
                     "Host": [
-                        ""
+                        "www.bing.com"
                     ]
                 },
                 "path": "/$UUID-vm",
@@ -903,7 +920,7 @@ cat > sing_box.txt <<EOF
 }
 EOF
 
-cat > clash_meta.txt <<EOF
+cat > clash_meta.yaml <<EOF
 port: 7890
 allow-lan: true
 mode: rule
@@ -956,11 +973,11 @@ proxies:
   udp: true
   tls: false
   network: ws
-  servername: $vm_name                    
+  servername: www.bing.com                    
   ws-opts:
     path: "/$UUID-vm"                             
     headers:
-      Host: $vm_name                     
+      Host: www.bing.com                     
 
 - name: hysteria2-$NAME                            
   type: hysteria2                                      
@@ -1012,11 +1029,11 @@ proxy-groups:
   interval: 300
   strategy: round-robin
   proxies:
-    - vless-reality-vision-$hostname                              
-    - vmess-ws-$hostname
-    - hysteria2-$hostname
-    - vmess-tls-argo-$hostname
-    - vmess-argo-$hostname
+    - vless-reality-vision-$NAME                              
+    - vmess-ws-$NAME
+    - hysteria2-$NAME
+    - vmess-tls-argo-$NAME
+    - vmess-argo-$NAME
 
 - name: 自动选择
   type: url-test
@@ -1061,17 +1078,18 @@ fi
 }
 
 showsbclash(){
-if [[ -e $WORKDIR/sing_box.txt ]]; then
+if [[ -e $WORKDIR/sing_box.json ]]; then
 green "Sing_box配置文件如下："
 yellow "Argo节点的地址可自行修改优选IP"
 sleep 2
-cat $WORKDIR/sing_box.txt 
+cat $WORKDIR/sing_box.json 
 echo
 echo
 green "Clash_meta配置文件如下："
 yellow "Argo节点的地址可自行修改优选IP"
 sleep 2
-cat $WORKDIR/clash_meta.txt
+cat $WORKDIR/clash_meta.yaml
+echo
 else
 red "未安装sing-box" && exit
 fi
@@ -1080,26 +1098,27 @@ fi
 #主菜单
 menu() {
    clear
-   echo ""
+   echo "======================================================"
    purple "修改自Serv00|ct8老王sing-box安装脚本"
    purple "一键三协议共存：vless-reality、Vmess-ws(Argo)、hysteria2"
    purple "转载请著名处自老王，请勿滥用"
    green "甬哥Github项目  ：github.com/yonggekkk"
    green "甬哥Blogger博客 ：ygkkk.blogspot.com"
    green "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
+   echo "======================================================"
    echo
    green  "1. 安装sing-box"
-   echo   "=================================="
+   echo   "----------------------------------"
    red    "2. 卸载sing-box"
-   echo   "=================================="
+   echo   "----------------------------------"
    green  "3. 查看节点及proxyip/非标端口反代ip"
-   echo   "=================================="
+   echo   "----------------------------------"
    green  "4. 查看sing-box与clash-meta配置文件"
-   echo   "=================================="
+   echo   "----------------------------------"
    yellow "5. 清理所有进程"
-   echo   "=================================="
+   echo   "----------------------------------"
    red    "0. 退出脚本"
-   echo   "=================================="
+   echo   "----------------------------------"
 nb=$(echo "$HOSTNAME" | cut -d '.' -f 1 | tr -d 's')
 ym=("cache$nb.serv00.com" "$HOSTNAME" "web$nb.serv00.com")
 rm -rf $WORKDIR/ip.txt
@@ -1128,10 +1147,10 @@ echo
 if [[ -e $WORKDIR/list.txt ]]; then
 green "已安装sing-box" 
 else
-red "未安装sing-box，请选择1进行安装" 
+red "未安装sing-box，请选择 1 进行安装" 
 fi
-   echo   "=================================="
-   reading "请输入选择(0-5): " choice
+   echo   "----------------------------------"
+   reading "请输入选择【0-5】: " choice
    echo ""
     case "${choice}" in
         1) install_singbox ;;

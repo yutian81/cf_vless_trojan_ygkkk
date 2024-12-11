@@ -538,7 +538,7 @@ hy2_link="hysteria2://$UUID@$IP:$hy2_port?sni=www.bing.com&alpn=h3&insecure=1#$N
 echo "$hy2_link" >> jh.txt
 url=$(cat jh.txt 2>/dev/null)
 baseurl=$(echo -e "$url" | base64 -w 0)
-yellow "注意：v2rayN或其他软件的跳过证书验证需设置为true，否则hy2或tuic节点可能不通\n"
+echo
 sleep 2
 cat > list.txt <<EOF
 
@@ -553,26 +553,26 @@ $vl_link
 方式一全局应用：设置变量名：proxyip    设置变量值：$IP:$vless_port  
 方式二单节点应用：path路径改为：/pyip=$IP:$vless_port
 CF节点的TLS可开可关
-用于CF节点落地到CF网站的地区为$IP所在地区
+CF节点落地到CF网站的地区为：$IP所在地区
 
 2、非标端口反代IP信息如下：
 客户端优选IP地址为：$IP，端口：$vless_port
 CF节点的TLS必须开启
-用于CF节点落地到非CF网站的地区为$IP所在地区
+CF节点落地到非CF网站的地区为：$IP所在地区
 
-注：如果serv00的IP被墙，proxyip依旧有效，但用于客户端的优选IP将不可用！
-注：必定有大佬会扫Serv00的反代IP作为其共享IP库或者出售，请慎重将reality域名设置为CF域名
+注：如果serv00的IP被墙，proxyip依旧有效，但用于客户端地址与端口的非标端口反代IP将不可用！
+注：可能有大佬会扫Serv00的反代IP作为其共享IP库或者出售，请慎重将reality域名设置为CF域名
 -------------------------------------------------------------------------------------------------
 
 
 二、Vmess-ws分享链接三形态如下：
-1、Vmess-ws分享链接如下：
+1、Vmess-ws主节点分享链接如下：
 $vmws_link
 
-2、Vmess-ws-tls_Argo分享链接如下 (客户端地址可自行修改优选IP，6个443系端口随便更换)：
+2、Vmess-ws-tls_Argo分享链接如下 (客户端地址可自行修改优选IP，6个443系端口随便更换，该节点被墙也能用！)：
 $vmatls_link
 
-3、Vmess-ws_Argo分享链接如下 (客户端地址可自行修改优选IP，7个80系端口随便更换)：
+3、Vmess-ws_Argo分享链接如下 (客户端地址可自行修改优选IP，7个80系端口随便更换，该节点被墙也能用！)：
 $vma_link
 -------------------------------------------------------------------------------------------------
 
@@ -587,7 +587,7 @@ $baseurl
 -------------------------------------------------------------------------------------------------
 
 
-五、查看sing-box与clash-meta配置文件，请进入主菜单选择4
+五、查看sing-box与clash-meta的订阅配置文件，请进入主菜单选择4
 -------------------------------------------------------------------------------------------------
 
 =================================================================================================
@@ -1106,19 +1106,19 @@ menu() {
    green "甬哥Blogger博客 ：ygkkk.blogspot.com"
    green "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
    echo "======================================================"
-   echo
+   echo 
    green  "1. 安装sing-box"
-   echo   "----------------------------------"
+   echo   "------------------------------------------------------"
    red    "2. 卸载sing-box"
-   echo   "----------------------------------"
+   echo   "------------------------------------------------------"
    green  "3. 查看节点及proxyip/非标端口反代ip"
-   echo   "----------------------------------"
+   echo   "------------------------------------------------------"
    green  "4. 查看sing-box与clash-meta配置文件"
-   echo   "----------------------------------"
+   echo   "------------------------------------------------------"
    yellow "5. 清理所有进程"
-   echo   "----------------------------------"
+   echo   "------------------------------------------------------"
    red    "0. 退出脚本"
-   echo   "----------------------------------"
+   echo   "======================================================"
 nb=$(echo "$HOSTNAME" | cut -d '.' -f 1 | tr -d 's')
 ym=("cache$nb.serv00.com" "$HOSTNAME" "web$nb.serv00.com")
 rm -rf $WORKDIR/ip.txt
@@ -1136,11 +1136,12 @@ echo "$response" | while IFS='|' read -r ip status; do
 if [[ $status == "Accessible" ]]; then
 echo "$ip: 可用"  >> $WORKDIR/ip.txt
 else
-echo "$ip: 被墙"  >> $WORKDIR/ip.txt
+echo "$ip: 被墙 (Argo节点与proxyip依旧有效)"  >> $WORKDIR/ip.txt
 fi	
 done
 fi
 done
+green "当前Serv00服务器名称：$(hostname | awk -F '.' '{print $1}')"
 green "当前可选择的IP如下："
 cat $WORKDIR/ip.txt
 echo
@@ -1149,7 +1150,7 @@ green "已安装sing-box"
 else
 red "未安装sing-box，请选择 1 进行安装" 
 fi
-   echo   "----------------------------------"
+   echo   "======================================================"
    reading "请输入选择【0-5】: " choice
    echo ""
     case "${choice}" in

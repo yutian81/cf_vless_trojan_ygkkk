@@ -483,8 +483,10 @@ get_argodomain() {
 get_links(){
 argodomain=$(get_argodomain)
 echo -e "\e[1;32mArgo域名:\e[1;35m${argodomain}\e[0m\n"
-green "可使用浏览器访问Argo域名：${argodomain} "
-green "如果显示【找不到 ${argodomain} 的网页，HTTP ERROR 404】：恭喜！说明Argo隧道已生效且可用"
+if [ -z ${argodomain} ]; then
+red "Argo域名生成失败，当前Argo节点不可用"
+yellow "可尝试卸载重置安装，或者只用CDN回源设置现实CDN优选IP"
+fi
 ISP=$(curl -s --max-time 2 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
 get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
 NAME="$ISP-$(get_name)"
@@ -530,14 +532,15 @@ CF节点落地到非CF网站的地区为：$IP所在地区
 二、Vmess-ws分享链接三形态如下：
 
 1、Vmess-ws主节点分享链接如下：
+(该节点默认不支持CDN，如果设置为CDN回源(需域名)：客户端地址可自行修改优选IP/域名，7个80系端口随便换，被墙依旧能用！)
 $vmws_link
 
 2、Vmess-ws-tls_Argo分享链接如下： 
-(该节点为CDN优选IP节点，客户端地址可自行修改优选IP/域名，6个443系端口随便更换，被墙依旧能用！)
+(该节点为CDN优选IP节点，客户端地址可自行修改优选IP/域名，6个443系端口随便换，被墙依旧能用！)
 $vmatls_link
 
 3、Vmess-ws_Argo分享链接如下：
-(该节点为CDN优选IP节点，客户端地址可自行修改优选IP/域名，7个80系端口随便更换，被墙依旧能用！)
+(该节点为CDN优选IP节点，客户端地址可自行修改优选IP/域名，7个80系端口随便换，被墙依旧能用！)
 $vma_link
 -------------------------------------------------------------------------------------------------
 
@@ -1070,20 +1073,20 @@ menu() {
    green "甬哥Blogger博客 ：ygkkk.blogspot.com"
    green "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
    green "一键三协议共存：vless-reality、Vmess-ws(Argo)、hysteria2"
-   green "当前脚本版本：V24.12.14"
+   green "当前脚本版本：V24.12.16"
    echo "========================================================="
    green  "1. 安装sing-box"
-   echo   "------------------------------------------------------"
+   echo   "---------------------------------------------------------"
    red    "2. 卸载sing-box"
-   echo   "------------------------------------------------------"
+   echo   "---------------------------------------------------------"
    green  "3. 查看节点及proxyip/非标端口反代ip"
-   echo   "------------------------------------------------------"
+   echo   "---------------------------------------------------------"
    green  "4. 查看sing-box与clash-meta配置文件"
-   echo   "------------------------------------------------------"
+   echo   "---------------------------------------------------------"
    yellow "5. 重置并清理所有服务进程(系统初始化)"
-   echo   "------------------------------------------------------"
+   echo   "---------------------------------------------------------"
    red    "0. 退出脚本"
-   echo   "======================================================"
+   echo   "========================================================="
 nb=$(echo "$HOSTNAME" | cut -d '.' -f 1 | tr -d 's')
 ym=("cache$nb.serv00.com" "$HOSTNAME" "web$nb.serv00.com")
 rm -rf $WORKDIR/ip.txt
@@ -1101,7 +1104,7 @@ echo "$response" | while IFS='|' read -r ip status; do
 if [[ $status == "Accessible" ]]; then
 echo "$ip: 可用"  >> $WORKDIR/ip.txt
 else
-echo "$ip: 被墙 (Argo节点与proxyip依旧有效)"  >> $WORKDIR/ip.txt
+echo "$ip: 被墙 (Argo与CDN回源节点、proxyip依旧有效)"  >> $WORKDIR/ip.txt
 fi	
 done
 fi
@@ -1115,7 +1118,7 @@ green "已安装sing-box"
 else
 red "未安装sing-box，请选择 1 进行安装" 
 fi
-   echo   "======================================================"
+   echo   "========================================================="
    reading "请输入选择【0-5】: " choice
    echo ""
     case "${choice}" in

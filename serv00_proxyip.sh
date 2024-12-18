@@ -1109,7 +1109,8 @@ fi
 done
 fi
 done
-green "当前Serv00服务器名称：$(hostname | awk -F '.' '{print $1}')"
+snb=$(hostname | awk -F '.' '{print $1}')
+green "当前Serv00服务器名称：$snb"
 green "当前可选择的IP如下："
 cat $WORKDIR/ip.txt
 echo

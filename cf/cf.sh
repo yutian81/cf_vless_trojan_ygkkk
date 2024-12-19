@@ -49,6 +49,12 @@ else
 echo "当前网络仅支持IPV4"
 fi
 rm -rf 6.csv 4.csv
+echo "甬哥Github项目  ：github.com/yonggekkk"
+echo "甬哥Blogger博客 ：ygkkk.blogspot.com"
+echo "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
+echo
+echo "切记！快捷运行：bash cf.sh"
+echo
 echo "请选择优选类型"
 echo "1、仅IPV4优选"
 echo "2、仅IPV6优选"
@@ -57,17 +63,17 @@ echo "4、重置配置文件"
 echo "5、退出"
 read -p "请选择【1-5】:" menu
 if [ ! -e cf ]; then
-curl -L -o cf -# --retry 2 --insecure https://ghp.ci/https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/$cpu
+curl -L -o cf -# --retry 2 --insecure https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/$cpu
 chmod +x cf
 fi
 if [ ! -e locations.json ]; then
-curl -s -o locations.json https://ghp.ci/https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/locations.json
+curl -s -o locations.json https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/locations.json
 fi
 if [ ! -e ips-v4.txt ]; then
-curl -s -o ips-v4.txt https://ghp.ci/https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/ips-v4.txt
+curl -s -o ips-v4.txt https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/ips-v4.txt
 fi
 if [ ! -e ips-v6.txt ]; then
-curl -s -o ips-v6.txt https://ghp.ci/https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/ips-v6.txt
+curl -s -o ips-v6.txt https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/ips-v6.txt
 fi
 if [ "$menu" = "1" ]; then
 ip=4

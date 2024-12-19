@@ -94,7 +94,7 @@
 
 主要增加reality协议默认支持 CF vless/trojan 节点的proxyip以及非标端口的优选反代IP功能
 
-详细设置教程，请点击[Serv00最全面的代理脚本](https://youtu.be/2VF9D6z2z7w)
+详细设置视频教程，请点击[Serv00最全面的代理脚本](https://youtu.be/2VF9D6z2z7w)
 
 Serv00专用一键脚本：
 ```
@@ -257,7 +257,7 @@ CF Trojan：在网页地址栏输入 https:// workers域名 或者 pages域名 �
 -------------------------------------------------------------
 ### 脚本1：CF-优选官方IP (默认美、亚、欧三地区 强烈推荐！！！)，安卓苹果手机平板专用：
 ```
-curl -sSL https://ghp.ci/https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/cf.sh -o cf.sh && chmod +x cf.sh && bash cf.sh
+curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/cf/cf.sh -o cf.sh && chmod +x cf.sh && bash cf.sh
 ```
 -------------------------------------------------------------
 

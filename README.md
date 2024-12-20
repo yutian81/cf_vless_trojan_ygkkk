@@ -104,6 +104,14 @@ bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_tro
 
 ![0bfd865cba72ccda1b3f34c7ee89fe9](https://github.com/user-attachments/assets/f0238a99-1ecc-45ae-bf34-b1b6153286f3)
 
+
+多账号进程保活脚本已支持，把kp.sh文件放到第三方VPS服务器，修改里面的参数即可定时自动运行保活节点
+
+Serv00保活脚本，默认nano编辑形式，参数添加完毕运行```bash kp.sh```即可
+```
+curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/kp.sh -o kp.sh && chmod +x kp.sh && nano kp.sh
+```
+
 ### 2、VPS专用：
 
 推荐使用 离中国近、便宜、流量多的纯IPV6的vps进行搭建。近可能避免使用IPV4，因为IPV4大概率被大佬们偷扫反代IP，成为他们的公益或收费反代IP库。如果非要用IPV4，请时常关注下自己VPS的流量，使用proxyip与客户端优选IP都会消耗VPS流量

@@ -122,6 +122,9 @@ uninstall_singbox() {
        [Yy])
           ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 2>/dev/null
           rm -rf $WORKDIR
+	  crontab -l | grep -v "serv00keep" >rmcron
+          crontab rmcron >/dev/null 2>&1
+          rm rmcron
           clear
           green "已完全卸载"
           ;;
@@ -141,7 +144,7 @@ reading "\n清理所有进程并清空所有安装内容，将退出ssh连接，
     find ~ -type d -empty -exec rmdir {} \; 2>/dev/null
     find ~ -exec rm -rf {} \; 2>/dev/null
     ;;
-       *) menu ;;
+    *) menu ;;
   esac
 }
 
@@ -246,6 +249,8 @@ wait
 output=$(./"$(basename ${FILE_MAP[web]})" generate reality-keypair)
 private_key=$(echo "${output}" | awk '/PrivateKey:/ {print $2}')
 public_key=$(echo "${output}" | awk '/PublicKey:/ {print $2}')
+echo "${private_key}" > private_key.txt
+echo "${public_key}" > public_key.txt
 
 openssl ecparam -genkey -name prime256v1 -out "private.key"
 openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=$USERNAME.serv00.net"
@@ -256,40 +261,6 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     "disabled": true,
     "level": "info",
     "timestamp": true
-  },
-  "dns": {
-    "servers": [
-      {
-        "tag": "google",
-        "address": "tls://8.8.8.8",
-        "strategy": "ipv4_only",
-        "detour": "direct"
-      }
-    ],
-    "rules": [
-      {
-        "rule_set": [
-          "geosite-openai"
-        ],
-        "server": "wireguard"
-      },
-      {
-        "rule_set": [
-          "geosite-netflix"
-        ],
-        "server": "wireguard"
-      },
-      {
-        "rule_set": [
-          "geosite-category-ads-all"
-        ],
-        "server": "block"
-      }
-    ],
-    "final": "google",
-    "strategy": "",
-    "disable_cache": false,
-    "disable_expire": false
   },
     "inbounds": [
     {
@@ -302,7 +273,8 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
              "password": "$UUID"
          }
      ],
-     "masquerade": "https://bing.com",
+     "masquerade": "https://www.bing.com",
+     "ignore_client_bandwidth":false,
      "tls": {
          "enabled": true,
          "alpn": [
@@ -315,7 +287,7 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     {
         "tag": "vless-reality-vesion",
         "type": "vless",
-        "listen": "$IP",
+        "listen": "::",
         "listen_port": $vless_port,
         "users": [
             {
@@ -368,23 +340,6 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     {
       "type": "dns",
       "tag": "dns-out"
-    },
-    {
-      "type": "wireguard",
-      "tag": "wireguard-out",
-      "server": "162.159.195.100",
-      "server_port": 4500,
-      "local_address": [
-        "172.16.0.2/32",
-        "2606:4700:110:83c7:b31f:5858:b3a8:c6b1/128"
-      ],
-      "private_key": "mPZo+V9qlrMGCZ7+E6z2NI6NOV34PD++TpAR09PtCWI=",
-      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-      "reserved": [
-        26,
-        21,
-        228
-      ]
     }
   ],
   "route": {
@@ -398,48 +353,10 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
         "outbound": "direct"
       },
       {
-        "rule_set": [
-          "geosite-openai"
-        ],
-        "outbound": "wireguard-out"
-      },
-      {
-        "rule_set": [
-          "geosite-netflix"
-        ],
-        "outbound": "wireguard-out"
-      },
-      {
-        "rule_set": [
-          "geosite-category-ads-all"
-        ],
-        "outbound": "block"
-      }
-    ],
-    "rule_set": [
-      {
-        "tag": "geosite-netflix",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-netflix.srs",
-        "download_detour": "direct"
-      },
-      {
-        "tag": "geosite-openai",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-        "download_detour": "direct"
-      },      
-      {
-        "tag": "geosite-category-ads-all",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
-        "download_detour": "direct"
-      }
-    ],
-    "final": "direct"
+"outbound": "direct",
+"network": "udp,tcp"
+}
+    ]
    },
    "experimental": {
       "cache_file": {
@@ -493,13 +410,32 @@ get_argodomain() {
 }
 
 get_links(){
-
 argodomain=$(get_argodomain)
 echo -e "\e[1;32mArgo域名:\e[1;35m${argodomain}\e[0m\n"
 if [ -z ${argodomain} ]; then
 red "Argo域名生成失败，当前Argo节点不可用"
 yellow "可尝试卸载重置安装，或者只用CDN回源设置现实CDN优选IP"
 fi
+echo
+green "安装进程保活"
+curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/serv00keep.sh -o serv00keep.sh && chmod +x serv00keep.sh
+sed -i '' -e '18s|743f8207-40d0-4440-9a44-97be0fea69c1|'"$UUID"'|' serv00keep.sh
+sed -i '' -e '21s|123|'"$vless_port"'|' serv00keep.sh
+sed -i '' -e '22s|456|'"$vmess_port"'|' serv00keep.sh
+sed -i '' -e '23s|789|'"$hy2_port"'|' serv00keep.sh
+sed -i '' -e '24s|888|'"$IP"'|' serv00keep.sh
+sed -i '' -e '25s|www.speedtest.net|'"$reym"'|' serv00keep.sh
+if [[ "${argodomain}" == *"trycloudflare.com"* ]] || [ -z "${argodomain}" ]; then
+sed -i '' -e '19s|111||' serv00keep.sh
+sed -i '' -e '20s|999||' serv00keep.sh
+else
+sed -i '' -e '19s|111|'"$ARGO_DOMAIN"'|' serv00keep.sh
+sed -i '' -e '20s|999|'"$ARGO_AUTH"'|' serv00keep.sh
+fi
+if ! crontab -l 2>/dev/null | grep -q 'serv00keep'; then
+(crontab -l 2>/dev/null; echo "*/2 * * * * if ! ps aux | grep '[c]onfig' > /dev/null; then /bin/bash ${WORKDIR}/serv00keep.sh; fi") | crontab -
+fi
+green "进程保活安装完毕"
 ISP=$(curl -s --max-time 2 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
 get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
 NAME="$ISP-$(get_name)"
@@ -1090,7 +1026,7 @@ menu() {
    green "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
    green "一键三协议共存：vless-reality、Vmess-ws(Argo)、hysteria2"
    green "脚本使用视频教程：https://youtu.be/2VF9D6z2z7w"
-   green "当前脚本版本：V24.12.18 "
+   green "当前脚本版本：V24.12.20 已支持进程保活"
    echo "========================================================="
    green  "1. 安装sing-box"
    echo   "---------------------------------------------------------"

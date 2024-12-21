@@ -16,8 +16,8 @@ USERNAME=$(whoami)
 HOSTNAME=$(hostname)
 
 export UUID=${UUID:-'743f8207-40d0-4440-9a44-97be0fea69c1'}  
-export ARGO_DOMAIN=${ARGO_DOMAIN:-''}   
-export ARGO_AUTH=${ARGO_AUTH:-''}     
+export ARGO_DOMAIN=${ARGO_DOMAIN:-'111'}   
+export ARGO_AUTH=${ARGO_AUTH:-'999'}     
 export vless_port=${vless_port:-'123'}    
 export vmess_port=${vmess_port:-'456'}  
 export hy2_port=${hy2_port:-'789'}       
@@ -135,9 +135,8 @@ for entry in "${FILE_INFO[@]}"; do
 done
 wait
 
-output=$(./"$(basename ${FILE_MAP[web]})" generate reality-keypair)
-private_key=$(echo "${output}" | awk '/PrivateKey:/ {print $2}')
-public_key=$(echo "${output}" | awk '/PublicKey:/ {print $2}')
+private_key=$(<private_key.txt)
+public_key=$(<public_key.txt)
 
 openssl ecparam -genkey -name prime256v1 -out "private.key"
 openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=$USERNAME.serv00.net"

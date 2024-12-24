@@ -136,6 +136,7 @@ kill_all_tasks() {
 reading "\n清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
   case "$choice" in
     [Yy]) 
+    ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 2>/dev/null
     killall -9 -u $(whoami)
     find ~ -type f -exec chmod 644 {} \; 2>/dev/null
     find ~ -type d -exec chmod 755 {} \; 2>/dev/null
@@ -387,6 +388,17 @@ if [ -e "$(basename ${FILE_MAP[bot]})" ]; then
 fi
 sleep 3
 rm -f "$(basename ${FILE_MAP[web]})"
+if ps aux | grep '[c]onfig' > /dev/null; then
+green "主进程已启动"
+else
+red "主进程未启动，根据以下情况一一排查"
+yellow "1、网页端权限是否开启"
+yellow "2、端口是否设置错误(2个TCP、1个UDP)"
+yellow "3、尝试更换网页端3个端口并重装"
+yellow "4、选择5重置"
+yellow "5、当前Serv00服务器炸了？等会再试"
+exit
+fi
 }
 
 get_argodomain() {
@@ -431,9 +443,9 @@ sed -i '' -e '19s|111|'"$ARGO_DOMAIN"'|' serv00keep.sh
 sed -i '' -e '20s|999|'"$ARGO_AUTH"'|' serv00keep.sh
 fi
 if ! crontab -l 2>/dev/null | grep -q 'serv00keep'; then
-(crontab -l 2>/dev/null; echo "*/2 * * * * if ! ps aux | grep '[c]onfig' > /dev/null; then /bin/bash ${WORKDIR}/serv00keep.sh; fi") | crontab -
+(crontab -l 2>/dev/null; echo "*/10 * * * * if ! ps aux | grep '[c]onfig' > /dev/null; then /bin/bash ${WORKDIR}/serv00keep.sh; fi") | crontab -
 fi
-green "进程保活安装完毕，默认每2秒执行一次，运行 crontab -e 可自行修改cron定时时间" && sleep 2
+green "进程保活安装完毕，默认每10秒执行一次，运行 crontab -e 可自行修改cron定时时间" && sleep 2
 ISP=$(curl -s --max-time 5 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
 get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
 NAME="$ISP-$(get_name)"
@@ -483,7 +495,7 @@ CF节点落地到非CF网站的地区为：$IP所在地区
 $vmws_link
 
 Argo域名：${argodomain}
-如果上面Argo临时域名未生成，以下 2 与 3 的Argo节点将不可用 (固定域名需到CF后台查看是否处于绿色健康状态)
+如果上面Argo临时域名未生成，以下 2 与 3 的Argo节点将不可用 (打开Argo固定/临时域名网页，显示HTTP ERROR 404说明正常可用)
 
 2、Vmess-ws-tls_Argo分享链接如下： 
 (该节点为CDN优选IP节点，客户端地址可自行修改优选IP/域名，6个443系端口随便换，被墙依旧能用！)
@@ -1068,6 +1080,12 @@ echo
 if [[ -e $WORKDIR/list.txt ]]; then
 green "已安装sing-box"
 ps aux | grep '[c]onfig' > /dev/null && green "当前进程运行正常" || red "当前进程丢失，请卸载后重装脚本"
+if ! crontab -l 2>/dev/null | grep -q 'serv00keep'; then
+(crontab -l 2>/dev/null; echo "*/10 * * * * if ! ps aux | grep '[c]onfig' > /dev/null; then /bin/bash ${WORKDIR}/serv00keep.sh; fi") | crontab -
+yellow "Cron进程保活丢失？已修复成功"
+else
+green "Cron进程保活中"
+fi
 else
 red "未安装sing-box，请选择 1 进行安装" 
 fi

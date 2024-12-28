@@ -118,10 +118,11 @@ uninstall_singbox() {
     case "$choice" in
        [Yy])
           ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk '{print $2}' | xargs -r kill -9 2>/dev/null
-          rm -rf $WORKDIR
+          rm -rf $WORKDIR serv00.sh
 	  crontab -l | grep -v "serv00keep" >rmcron
           crontab rmcron >/dev/null 2>&1
           rm rmcron
+	  
           clear
           green "已完全卸载"
           ;;
@@ -380,8 +381,12 @@ fi
 get_argodomain() {
   if [[ -n $ARGO_AUTH ]]; then
     echo "$ARGO_DOMAIN" > gdym.log
+    echo "$ARGO_DOMAIN"
   else
     argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' boot.log 2>/dev/null | sed 's@https://@@')
+    if [ -z ${argodomain} ]; then
+    argodomain="Argo临时域名暂时获取失败，Argo节点暂不可用"
+    fi
     echo "$argodomain"
   fi
 }
@@ -389,24 +394,18 @@ get_argodomain() {
 get_links(){
 argodomain=$(get_argodomain)
 echo -e "\e[1;32mArgo域名:\e[1;35m${argodomain}\e[0m\n"
-if [ -z ${argodomain} ]; then
-yellow "Argo临时域名暂时未生成，两个Argo节点不可用，其他未被墙的节点依旧可用"
-fi
 echo
 green "安装进程保活"
 curl -sSL https://raw.githubusercontent.com/yonggekkk/Cloudflare_vless_trojan/main/serv00keep.sh -o serv00keep.sh && chmod +x serv00keep.sh
-sed -i '' -e '18s|743f8207-40d0-4440-9a44-97be0fea69c1|'"$UUID"'|' serv00keep.sh
-sed -i '' -e '21s|123|'"$vless_port"'|' serv00keep.sh
-sed -i '' -e '22s|456|'"$vmess_port"'|' serv00keep.sh
-sed -i '' -e '23s|789|'"$hy2_port"'|' serv00keep.sh
-sed -i '' -e '24s|888|'"$IP"'|' serv00keep.sh
-sed -i '' -e '25s|www.speedtest.net|'"$reym"'|' serv00keep.sh
-if [[ "${argodomain}" == *"trycloudflare.com"* ]] || [ -z "${argodomain}" ]; then
-sed -i '' -e '19s|111||' serv00keep.sh
-sed -i '' -e '20s|999||' serv00keep.sh
-else
-sed -i '' -e '19s|111|'"$ARGO_DOMAIN"'|' serv00keep.sh
-sed -i '' -e '20s|999|'"$ARGO_AUTH"'|' serv00keep.sh
+sed -i '' -e "18s|''|'$UUID'|" serv00keep.sh
+sed -i '' -e "21s|''|'$vless_port'|" serv00keep.sh
+sed -i '' -e "22s|''|'$vmess_port'|" serv00keep.sh
+sed -i '' -e "23s|''|'$hy2_port'|" serv00keep.sh
+sed -i '' -e "24s|''|'$IP'|" serv00keep.sh
+sed -i '' -e "25s|''|'$reym'|" serv00keep.sh
+if [ ! -f boot.log ]; then
+sed -i '' -e "19s|''|'${ARGO_DOMAIN}'|" serv00keep.sh
+sed -i '' -e "20s|''|'${ARGO_AUTH}'|" serv00keep.sh
 fi
 if ! crontab -l 2>/dev/null | grep -q 'serv00keep'; then
 if [ -f boot.log ] || grep -q "trycloudflare.com" boot.log 2>/dev/null; then
@@ -1007,7 +1006,7 @@ menu() {
    green "甬哥YouTube频道 ：www.youtube.com/@ygkkk"
    green "一键三协议共存：vless-reality、Vmess-ws(Argo)、hysteria2"
    green "脚本使用视频教程：https://youtu.be/2VF9D6z2z7w"
-   green "当前脚本版本：V24.12.26 已支持主进程与argo进程各自保活"
+   green "当前脚本版本：V24.12.27  快捷方式：bash serv00.sh"
    echo "========================================================="
    green  "1. 安装sing-box"
    echo   "---------------------------------------------------------"
@@ -1053,7 +1052,7 @@ green "已安装sing-box"
 ps aux | grep '[c]onfig' > /dev/null && green "主进程启动正常" || red "主进程未启动，请卸载后重装脚本"
 if [ -f "$WORKDIR/boot.log" ] && grep -q "trycloudflare.com" "$WORKDIR/boot.log" 2>/dev/null && ps aux | grep [l]ocalhost > /dev/null; then
 green "当前Argo临时域名：$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' $WORKDIR/boot.log 2>/dev/null | sed 's@https://@@')"
-elif [ ps aux | grep [t]oken > /dev/null ]; then
+elif ps aux | grep [t]oken > /dev/null; then
 green "当前Argo固定域名：$(cat $WORKDIR/gdym.log 2>/dev/null)"
 fi
 if ! crontab -l 2>/dev/null | grep -q 'serv00keep'; then

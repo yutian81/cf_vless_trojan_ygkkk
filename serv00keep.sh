@@ -215,6 +215,23 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     }
  ],
     "outbounds": [
+         {
+        "type": "wireguard",
+        "tag": "wg",
+        "server": "162.159.192.110",
+        "server_port": 1701,
+        "local_address": [
+        "172.16.0.2/32",
+        "2606:4700:110:8468:c6c3:c1a2:2db1:a7a/128"
+        ],
+        "private_key": "hveWdmx6gLzabPneunzSvj0zDfYVYXq++b0kRuKdGq8=",
+        "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+        "reserved": [
+            165,
+            196,
+            69
+        ]
+    },
     {
       "type": "direct",
       "tag": "direct"
@@ -223,7 +240,18 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
       "type": "block",
       "tag": "block"
     }
- ]
+ ],
+   "route": {
+    "rules": [
+    {
+     "domain": [
+   "jnn-pa.googleapis.com",
+   "usher.ttvnw.net"   
+      ],
+     "outbound": "wg"
+    }
+    ]
+    }   
 }
 EOF
 
@@ -294,7 +322,17 @@ get_argodomain() {
     echo "$ARGO_DOMAIN" > gdym.log
     echo "$ARGO_DOMAIN"
   else
+    local retry=0
+    local max_retries=6
+    local argodomain=""
+    while [[ $retry -lt $max_retries ]]; do
+    ((retry++)) 
     argodomain=$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' boot.log 2>/dev/null | sed 's@https://@@')
+      if [[ -n $argodomain ]]; then
+        break
+      fi
+      sleep 2
+    done  
     if [ -z ${argodomain} ]; then
     argodomain="Argo临时域名暂时获取失败，Argo节点暂不可用"
     fi
@@ -854,7 +892,7 @@ rules:
   
 EOF
 sleep 2
-rm -rf config.json sb.log core tunnel.yml tunnel.json fake_useragent_0.2.0.json
+rm -rf sb.log core tunnel.yml tunnel.json fake_useragent_0.2.0.json
 }
 
 install_singbox() {

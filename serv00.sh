@@ -257,6 +257,11 @@ echo "${public_key}" > public_key.txt
 openssl ecparam -genkey -name prime256v1 -out "private.key"
 openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=$USERNAME.serv00.net"
 
+nb=$(hostname | cut -d '.' -f 1 | tr -d 's')
+if [ "$nb" == "14" ]; then
+ytb='"jnn-pa.googleapis.com",'
+fi
+
   cat > config.json << EOF
 {
   "log": {
@@ -331,21 +336,21 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     }
  ],
     "outbounds": [
-         {
+     {
         "type": "wireguard",
         "tag": "wg",
-        "server": "162.159.192.110",
-        "server_port": 1701,
+        "server": "162.159.192.200",
+        "server_port": 4500,
         "local_address": [
-        "172.16.0.2/32",
-        "2606:4700:110:8468:c6c3:c1a2:2db1:a7a/128"
+                "172.16.0.2/32",
+                "2606:4700:110:8f77:1ca9:f086:846c:5f9e/128"
         ],
-        "private_key": "hveWdmx6gLzabPneunzSvj0zDfYVYXq++b0kRuKdGq8=",
+        "private_key": "wIxszdR2nMdA7a2Ul3XQcniSfSZqdqjPb6w6opvf5AU=",
         "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
         "reserved": [
-            165,
-            196,
-            69
+            126,
+            246,
+            173
         ]
     },
     {
@@ -361,12 +366,13 @@ openssl req -new -x509 -days 3650 -key "private.key" -out "cert.pem" -subj "/CN=
     "rules": [
     {
      "domain": [
-   "jnn-pa.googleapis.com",
-   "usher.ttvnw.net"   
+     $ytb
+     "oh.my.god"
       ],
      "outbound": "wg"
     }
-    ]
+    ],
+    "final": "direct"
     }  
 }
 EOF
@@ -1110,7 +1116,7 @@ cat $WORKDIR/ip.txt
 echo
 if [[ -e $WORKDIR/list.txt ]]; then
 green "已安装sing-box"
-ps aux | grep '[c]onfig' > /dev/null && green "主进程启动正常" || red "主进程未启动，请卸载后重装脚本"
+ps aux | grep '[c]onfig' > /dev/null && green "主进程启动正常" || red "主进程未启动，3分钟后将自动启动"
 if [ -f "$WORKDIR/boot.log" ] && grep -q "trycloudflare.com" "$WORKDIR/boot.log" 2>/dev/null && ps aux | grep [l]ocalhost > /dev/null; then
 green "当前Argo临时域名：$(grep -oE 'https://[[:alnum:]+\.-]+\.trycloudflare\.com' $WORKDIR/boot.log 2>/dev/null | sed 's@https://@@')"
 elif ps aux | grep [t]oken > /dev/null; then
